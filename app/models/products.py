@@ -11,7 +11,7 @@ class Product(Base):
     slug = Column(String, unique=True, index=True)
     description = Column(String)
     price = Column(Integer)
-    img_url = Column(String)
+    image_url = Column(String)
     stock = Column(Integer)
     category_id = Column(Integer, ForeignKey('categories.id'))
     rating = Column(Float)
@@ -20,3 +20,5 @@ class Product(Base):
     category = relationship('Category', back_populates='products')
 
 
+from sqlalchemy.schema import CreateTable
+print(CreateTable(Product.__table__))

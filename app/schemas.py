@@ -12,5 +12,5 @@ class CreateProduct(BaseModel):
 
 class CreateCategory(BaseModel):
     name: str
-    parent_id: int | None
+    parent_id: int
 
