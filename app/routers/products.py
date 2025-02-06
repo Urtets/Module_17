@@ -4,7 +4,7 @@ from app.backend.db_depends import get_db
 from typing import Annotated
 
 from sqlalchemy import insert
-from app.schemas import CreateCategory, CreateProduct
+from app.schemas import CreateProduct
 
 from slugify import slugify
 from sqlalchemy import select, update
@@ -45,7 +45,9 @@ async def create_product(db: Annotated[Session, Depends(get_db)], create_product
 
 @router_p.get('/{category_slug}')
 async def product_by_category(db: Annotated[Session, Depends(get_db)], category_slug: str):
-    category = db.scalar(select(Category).where(Category.slug == category_slug))
+    slugged_name = slugify(category_slug)
+    category = db.scalar(select(Category).where(Category.slug == slugged_name))
+    print(category.slug)
     if category is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
