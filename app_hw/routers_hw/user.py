@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app_hw.backend.db_depends import get_db
 from typing import Annotated
-from app_hw.models import User
+from app_hw.models import User, Task
 from app_hw.schemas import CreateUser, UpdateUser
 from sqlalchemy import insert, select, update, delete
 from slugify import slugify
@@ -13,7 +13,7 @@ router = APIRouter(prefix='/user', tags=['user'])
 
 
 @router.get('/')
-async def all_users(db: Annotated[Session, Depends(get_db),]):
+async def all_users(db: Annotated[Session, Depends(get_db)]):
     users = db.scalars(select(User)).all()
     return users
 
@@ -64,7 +64,7 @@ async def update_user(db: Annotated[Session, Depends(get_db)], update_user: Upda
 
 
 @router.delete('/delete')
-async def delete_user(db: Annotated[Session, Depends(get_db)], update_user: UpdateUser, user_id: int):
+async def delete_user(db: Annotated[Session, Depends(get_db)], user_id: int):
     user = db.scalar(select(User).where(User.id == user_id))
     if user is None:
         raise HTTPException(
@@ -73,6 +73,8 @@ async def delete_user(db: Annotated[Session, Depends(get_db)], update_user: Upda
         )
     db.execute(
         delete(User).where(User.id == user_id))
+    db.commit()
+    db.execute(delete(Task).where(Task.user_id == user_id))
     db.commit()
     return {
         'status_code': status.HTTP_200_OK,
